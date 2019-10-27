@@ -1,0 +1,200 @@
+#! /usr/local/bin/python3
+
+from enum import Enum
+from .board import (
+    Gem,
+    Card,
+    Noble,
+)
+
+class Action(Enum):
+    PICK_THREE = 0
+    PICK_SAME = 1
+    BUY_CARD = 2
+    RESERVE_CARD = 3
+    NONE = 4
+
+class Player(object):
+    def __init__(self, id):
+        self.rep = 0
+        self.id = id
+        self.gems = {}
+        self.reserve_count = 0
+
+        # all the development cards the player has
+        self.cards = {}
+
+        # the reversed cards
+        self.rev_cards = {}
+
+        # number of gold:
+        self.gold = 0
+
+        # the gems player has via the develop card
+        self.gems_from_card = {
+            gem: 0 for gem in Gem.__members__.keys()
+        }
+
+        # the function map for simplicity:
+        self._func_map = {
+            Action.PICK_THREE: self.pickDifferentGems,
+            Action.PICK_SAME: self.pickSameGems,
+            Action.BUY_CARD: self.buyBoardCard,
+            Action.BUY_RESERVE_CARD: self.buyReserveCard,
+            Action.RESERVE_CARD: self.reserveCard,
+            Action.NONE: self.noAction,
+        }
+
+    # ---------------------------------------------------------
+    # Here are all the standard operations the player can take
+    # 1. pick three different gems
+    # 2. pick two gems if there are 4 gems given a kind
+    # 3. buy a development card
+    # 4. reserve a development card and get a gold
+    # ---------------------------------------------------------
+    def pickGems(self, gems, board):
+        all_gems = board.genAllGens()
+        if (self.canGetGems(all_gems, gems)):
+            # get the gems from the board
+            board.removeGems(gems)
+
+            # add to player's pocket
+            self._addGems(gems)
+
+        else:
+            raise ValueError(
+                'Invalid gems counts! You want to get: {want}, but the Board only has: {existing}'.format(
+                    want='\n'.join([str(k) + ":" + v for k, v in gems])
+                    existing='\n'.join([str(k) + ":" + v for k, v in all_gems])
+                )
+            )
+
+
+    def pickSameGems(self, gems, card, board):
+        self.pickGems(gems, board)
+
+
+    def pickDifferentGems(self, gems, card, board):
+        self.pickGems(gems, board)
+
+
+    def buyBoardCard(self, gems, card, board):
+        all_cards = board.getAllCard()
+
+        # if we successfully get one card
+        if (card in all_cards):
+            # add up the reputation if any:
+            self.rep += card.reputation:
+
+            # add the card to your pocket
+            self.cards.insert(card)
+
+            # update your card pocket map:
+            assert(card.gem in self.gems_possessed)
+            self.gems_from_card[card.gem] += 1
+
+            # substract your gem:
+            self.updateGems(card.cost)
+
+            board.removeCard(card.id)
+            board.loadCards(card.level, 1)
+        else:
+            raise ValueError(
+                "Try to buy a card {i} that is not on the current board! ".format(
+                    i=card.id if card else -1
+                )
+            )
+
+
+    def buyReserveCard(self, gems, card, board):
+        if card self.rev_cards:
+            self.rep += card.reputation:
+
+            # add the card to your pocket
+            self.cards.insert(card)
+
+            # update your card pocket map:
+            assert(card.value in self.gems_possessed)
+            self.gems_possessed[card.value] += 1
+
+            # substract your gem:
+            self.updateGems(card.cost)
+
+            # remove the reversed card:
+            self.rev_cards.remove(card)
+        else:
+            raise ValueError(
+                "Try to buy a reserved card {i} that is not being reverved!".format(
+                    i=card.id if card else -1
+                )
+            )
+
+    def reserveCard(self, gems, card, board):
+        if self.reserve_count >= 3:
+            raise ValueError("You cannot reserve the card because you have only reserved for three times!")
+
+        all_cards = board.getAllCard()
+
+        if (card in all_cards):
+            self.rev_cards.insert(card)
+
+            self.gems[Gem.GOLD] += 1
+
+            board.removeCard(card.id)
+            board.loadCards(card.level, 1)
+            self.reserve_count += 1
+        else:
+            raise ValueError(
+                "Try to reserve a card {i} that is not in the board!".format(
+                    i=card.id if card else -1
+                )
+            )
+
+    def noAction(self, gems, card, board):
+        pass
+
+
+    # substract your gem, expect to update your current gems
+    def updateGems(self, gem_cost):
+        for g, v in gem_cost.items():
+            gem_in_hand = self.gems[g] if g in gems else 0
+            gem_from_card = self.gems_from_card[g]
+
+            if (gem_in_hand + gem_from_card < v):
+                gold_count = self.gems[Gem.GOLD] if self.gems[Gem.GOLD] > 0 else 0
+                if (gem_in_hand + gem_from_card + gold_count >= v):
+                    # substract the permanent gem:
+                    remain = v - gem_from_card
+                    if (remain > gem_in_hand):
+                        # you will have to use gold here
+                        self.gems[g] = 0
+                        self.gems[Gem.GOLD] -= remain - gem_in_hand
+                        assert(self.gems[Gem.GOLD] >= 0)
+                    else:
+                        # you do not need to use gold:
+                        self.gens[g] -= gem_in_hand - remain
+                else:
+                    raise ValueError(
+                        'Not enough gem balance even you are using gold\n' +
+                        'You need: {}\n'.format('\n'.join(str(k) + ':' + v for k, v in gem_cost.items())) +
+                        'But you have: {}'.format('\n'.join(str(k) + ':' + v for k, v in self.gems.items())) +
+                        'And your card value: {}'.format('\n'.join(str(k) + ':' + v for k, v in self.gems_from_card.items()))
+                    )
+            else:
+                remain = v - gem_from_card
+                # if remain <= 0, then you do not need to pay any thing!
+                if (remain > 0):
+                    # you still need to pay your gem
+                    self.gems[g] -= remain
+                    assert(self.gems[g] >= 0)
+
+
+    # your strategy will being called here:
+    def takeAction(self, board):
+        # your strategy, you need to provide:
+        # 1. which action is that
+        # 2. # gems you want to pick or spend
+        # 3. the card you want to buy or reserve
+        (action, gems, card) = self.nextStep(board)
+
+        self._func_map[action](gems, card, board)
