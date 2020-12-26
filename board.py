@@ -81,12 +81,15 @@ class Board(object):
         '''Initiates gems for the board to start the game'''
         assert self.players_cnt >= 2 and self.players_cnt <= 4
         for gem_type in Gem:
-            self.gems[gem_type] = 3 + self.players_cnt
+            if self.players_cnt == 4:
+                self.gems[gem_type] = 7
+            else:
+                self.gems[gem_type] = 2 + self.players_cnt
         self.gems[Gem.GOLD] = 5
 
     def _init_nobles(self):
         '''Initiates nobles for the board to start the game'''
-        for i in range(3):
+        for i in range(self.players_cnt + 1):
             self.nobles.append(self.all_nobles[self.noble_index])
             self.noble_index += 1
 
