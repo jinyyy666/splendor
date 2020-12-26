@@ -298,7 +298,6 @@ class Player(object):
                     self.gems_from_hand[g] -= remain
                     assert(self.gems_from_hand[g] >= 0)
 
-    
     # your strategy will being called here:
     def take_action(self, board):
         # your strategy, you need to provide:
@@ -312,5 +311,11 @@ class Player(object):
         # card = board.get_card(card_id)
         #self._func_map[action](gems, card, board)
         pass
-    
+
+
+    # this is use to take an action from outside (for test)
+    def take_external_action(self, action_params, board):
+        action, gems, card_id = action_params.action, action_params.gems, action_params.card_id 
+        card = board.get_card(card_id)
+        self._func_map[action](gems, card, board)
     
