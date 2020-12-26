@@ -98,7 +98,7 @@ class Board(object):
 
     def _load_all_cards(self):
         '''Loads all development cards from CSV file'''
-        fo = open('cards.csv')
+        fo = open('config/cards.csv')
         reader = csv.reader(fo)
         next(reader, None) # skip header
         id = 0
@@ -120,7 +120,7 @@ class Board(object):
 
     def _load_all_nobles(self):
         '''Loads all nobles from CSV file'''
-        fo = open('nobles.csv')
+        fo = open('config/nobles.csv')
         reader = csv.reader(fo)
         next(reader, None) # skip header
         id = 0
