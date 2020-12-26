@@ -111,7 +111,7 @@ class Player(object):
             c_dict[k] += v
         total_available_gems = dict(c_dict)
 
-        gold_count = self.gems_from_hand[Gem.GOLD]
+        gold_count = self.gems_from_hand.get(Gem.GOLD, 0)
         for gem_t, cnt in card.cost.items():
             availb = total_available_gems[gem_t]
             if cnt > availb:
@@ -135,6 +135,10 @@ class Player(object):
 
     def get_rev_cards(self):
         return self.rev_cards
+
+    ## setters:
+    def set_gems(self, gems):
+        self.gems_from_hand = gems
 
     def _add_gems(self, gems):
         for gem_t, cnt in gems.items():

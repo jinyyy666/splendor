@@ -7,6 +7,7 @@ from board import Board
 from player import Player
 from model import (
     Gem,
+    Card,
 ) 
 
 class PlayerTest(unittest.TestCase):
@@ -22,6 +23,31 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(player2.get_id(), 1)
         
         self.assertEqual(player1.card_summary(), {})
+
+    def test_can_afford(self):
+        player = Player(0)
+        card = Card(
+            0, 1, Gem.GREEN, 0, 
+            {Gem.GREEN : 1, Gem.RED : 1, Gem.BLACK : 1}
+        )
+
+        self.assertEqual(player.can_afford(card), False)
+
+        player.set_gems({Gem.GREEN : 1, Gem.RED: 1, Gem.BLACK: 1})
+        self.assertEqual(player.can_afford(card), True)
+
+        player.set_gems({Gem.GOLD : 3})
+        self.assertEqual(player.can_afford(card), True)
+
+        player.set_gems({Gem.GOLD : 1, Gem.RED: 1, Gem.BLACK: 1})
+        self.assertEqual(player.can_afford(card), True)
+
+        player.set_gems({Gem.GOLD : 1, Gem.RED: 1, Gem.BLACK: 0})
+        self.assertEqual(player.can_afford(card), False)
+
+        player.set_gems({Gem.GOLD : 1, Gem.RED: 1, Gem.BLUE: 2})
+        self.assertEqual(player.can_afford(card), False)
+
 
     def test_pick_same_gems(self):
         my_board = Board(2)
@@ -221,6 +247,7 @@ class PlayerTest(unittest.TestCase):
             player1.pick_different_gems(card.cost, None, my_board)
             player1.buy_board_card(None, card, my_board)
 
+        # get a new card from the refreshed board
         card = my_board.get_cards()[0][0]
 
         cost = deepcopy(card.cost)
