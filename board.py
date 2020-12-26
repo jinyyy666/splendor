@@ -9,6 +9,7 @@ from model import (
 )
 import csv
 import random
+from util import *
 
 
 class Board(object):
@@ -33,7 +34,9 @@ class Board(object):
 
     def take_gems(self, gems):
         '''Takes gems from the board'''
-        for gem, cnt in gems:
+        if not can_get_gem(self.gems, gems):
+            raise ValueError("not enough gems")
+        for gem, cnt in gems.items():
             self.gems[gem] -= cnt
 
     def get_cards(self):
@@ -95,7 +98,8 @@ class Board(object):
 
     def _load_all_cards(self):
         '''Loads all development cards from CSV file'''
-        reader = csv.reader(open('cards.csv'))
+        fo = open('cards.csv')
+        reader = csv.reader(fo)
         next(reader, None) # skip header
         id = 0
         for i in range(3):
@@ -112,10 +116,12 @@ class Board(object):
             id += 1
         for cards in self.all_cards:
             random.shuffle(cards)
+        fo.close()
 
     def _load_all_nobles(self):
         '''Loads all nobles from CSV file'''
-        reader = csv.reader(open('nobles.csv'))
+        fo = open('nobles.csv')
+        reader = csv.reader(fo)
         next(reader, None) # skip header
         id = 0
         for line in reader:
@@ -125,6 +131,7 @@ class Board(object):
             id += 1
             self.all_nobles.append(noble)
         random.shuffle(self.all_nobles)
+        fo.close()
 
     def _get_cost(self, gems, values):
         cost = {}
