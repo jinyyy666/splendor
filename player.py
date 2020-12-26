@@ -158,6 +158,8 @@ class Player(object):
     # 4. reserve a development card and get a gold
     # ---------------------------------------------------------
     def pick_gems(self, gems, board):
+        assert (gems is not None)
+
         all_gems = board.get_gems()
         if ( greater_than_or_equal_to(all_gems, gems) ):
             # take the gems from the board
@@ -184,6 +186,8 @@ class Player(object):
 
     
     def buy_board_card(self, gems, card, board):
+        assert (card is not None)
+
         if not self.can_afford(card):
             raise ValueError(
                 f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.gems_from_hand}; gems from card: {self.gems_from_card}"
@@ -206,21 +210,21 @@ class Player(object):
         self.gems_from_card[card.gem] += 1
 
         # substract your gem:
-        self.update_gems(card.cost)
+        diff_gems = self.update_gems(card.cost)
 
         board.take_card(card.id)
-
+        board.payback_gems(diff_gems)
     
     def buy_reserve_card(self, gems, card, board):
+        assert (card is not None)
+
         if not self.can_afford(card):
             raise ValueError(
                 f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.gems_from_hand}; gems from card: {self.gems_from_card}"
             )
 
         assert (card in self.rev_cards), (
-            "Try to buy a reserved card {i} that is not being reverved!".format(
-                i=card.id if card else -1
-            )
+            f"Try to buy a reserved card {card.id} that is not being reverved!"
         )
 
         # add the card to your pocket
@@ -231,7 +235,10 @@ class Player(object):
         self.gems_from_card[card.gem] += 1
 
         # substract your gem:
-        self.update_gems(card.cost)
+        diff_gems = self.update_gems(card.cost)
+
+        # put the gems back to board
+        board.payback_gems(diff_gems)
 
         # remove the reversed card:
         self.rev_cards.remove(card)
@@ -256,6 +263,7 @@ class Player(object):
         self.rev_cards.add(card)
         self.gems_from_hand[Gem.GOLD] += 1
 
+        board.take_gems({Gem.GOLD: 1})
         board.take_card(card.id)
         self.reserve_count += 1
 
@@ -266,6 +274,15 @@ class Player(object):
     
     # substract your gem, expect to update your current gems
     def update_gems(self, gem_cost):
+        def _raise_not_enough_error():
+            raise ValueError(
+                'Not enough gem balance even you are using gold\n' +
+                'You need: {}\n'.format('\n'.join(f'{k}:{v}' for k, v in gem_cost.items())) +
+                'But you have: {}\n'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_hand.items())) +
+                'And your card value: {}\n'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_card.items()))
+            )
+
+        gems_to_pay = {}
         for g, v in gem_cost.items():
             gem_in_hand = self.gems_from_hand.get(g, 0)
             gem_from_card = self.gems_from_card.get(g, 0)
@@ -280,23 +297,26 @@ class Player(object):
                         self.gems_from_hand[g] = 0
                         self.gems_from_hand[Gem.GOLD] -= remain - gem_in_hand
                         assert (self.gems_from_hand[Gem.GOLD] >= 0)
+                        gems_to_pay[Gem.GOLD] = remain - gem_in_hand
+                        gems_to_pay[g] = gem_in_hand
                     else:
-                        # you do not need to use gold:
-                        self.gems_from_hand[g] -= gem_in_hand - remain
+                        _raise_not_enough_error()
+                        #self.gems_from_hand[g] -= gem_in_hand - remain
+                        #gems_to_pay[g] = remain
                 else:
-                    raise ValueError(
-                        'Not enough gem balance even you are using gold\n' +
-                        'You need: {}\n'.format('\n'.join(f'{k}:{v}' for k, v in gem_cost.items())) +
-                        'But you have: {}'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_hand.items())) +
-                        'And your card value: {}'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_card.items()))
-                    )
+                    _raise_not_enough_error()
             else:
+                # pay without gold
                 remain = v - gem_from_card
                 # if remain <= 0, then you do not need to pay any thing!
                 if (remain > 0):
                     # you still need to pay your gem
                     self.gems_from_hand[g] -= remain
                     assert(self.gems_from_hand[g] >= 0)
+                    gems_to_pay[g] = remain 
+
+        return gems_to_pay
+
 
     # your strategy will being called here:
     def take_action(self, board):
