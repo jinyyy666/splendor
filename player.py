@@ -138,6 +138,9 @@ class Player(object):
                 summary[c.gem] = 0
             summary[c.gem] += 1
         return summary
+
+    def get_gems(self):
+        return self.gems_from_hand
         
 
     # ---------------------------------------------------------
@@ -159,8 +162,8 @@ class Player(object):
         else:
             raise ValueError(
                 'Invalid gems counts! You want to get: {want}, but the Board only has: {existing}'.format(
-                    want='\n'.join([str(k) + ":" + v for k, v in gems]),
-                    existing='\n'.join([str(k) + ":" + v for k, v in all_gems])
+                    want='\n'.join([f"{k}:{v}" for k, v in gems.items()]),
+                    existing='\n'.join([f"{k}:{v}" for k, v in all_gems.items()])
                 )
             )
 
