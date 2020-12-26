@@ -109,7 +109,7 @@ class Board(object):
             assert len(line) == 8
             level = int(line[0])
             card = Card(
-                id, level, line[1], int(line[2]),
+                id, level, Gem._value2member_map_[line[1]], int(line[2]),
                 self._get_cost([gem for gem in Gem], line[3:]))
             self.all_cards[level - 1].append(card)
             self.cards_map[id] = card
