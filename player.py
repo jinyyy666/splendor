@@ -1,5 +1,10 @@
-#! /usr/local/bin/python3
-import collections, functools, itertools, operator
+
+
+import functools
+import itertools
+import operator
+import collections
+
 from enum import Enum
 from board import (
     Gem,
