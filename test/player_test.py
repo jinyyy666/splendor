@@ -157,7 +157,7 @@ class PlayerTest(unittest.TestCase):
 
     def test_reserve_card(self):
         my_board = Board(2)
-        
+        gold_original = my_board.get_gems()[Gem.GOLD]
         player1 = Player(0)
         cards = my_board.get_cards()
 
@@ -173,8 +173,12 @@ class PlayerTest(unittest.TestCase):
         # try to reverse more:
         player1.reserve_card(None, cards[1][0], my_board)
         player1.reserve_card(None, cards[1][1], my_board)
+
+        self.assertEqual(my_board.get_gems()[Gem.GOLD], gold_original - 3)
+        
         with self.assertRaises(ValueError):
             player1.reserve_card(None, cards[2][0], my_board)
+
 
 
     def test_buy_reserve_card(self):
