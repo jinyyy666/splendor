@@ -7,9 +7,9 @@ from model import (
     Card,
     Noble,
 )
+from util import can_get_gem
 import csv
 import random
-from util import *
 
 
 class Board(object):
@@ -143,9 +143,9 @@ class Board(object):
     def _check_and_update_nobles(self, player):
         '''Checks all nobles and take if possible'''
         idx_to_remove = -1
-        nobles = player.nobles
+        nobles = self.nobles
         for i in range(len(nobles)):
-            if nobles[i].can_attract(player.card_summary):
+            if nobles[i].can_attract(player.card_summary()):
                 player.attract_noble(nobles[i])
                 break
         if idx_to_remove >= 0:
@@ -162,4 +162,4 @@ if __name__ == '__main__':
                 can_win = True
     if can_win:
         board.players.sort(key=lambda p: (-p.reputation, p.development_cards))
-        print('Player {} won!'.format(p.id))
+        print('Player {} won!'.format(board.players[0].id))

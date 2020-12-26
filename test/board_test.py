@@ -56,18 +56,17 @@ class BoardTest(unittest.TestCase):
 
     def test_upadte_nobles(self):
         b = Board(2)
-        cost = b.nobles[0].cost
-        print(cost)
         player = Player(1)
     
         for i in range(10):
-           player.cards.add(i, 1, Gem.RED, 0, {})
-           player.cards.add(i, 1, Gem.GREEN, 0, {})
-           player.cards.add(i, 1, Gem.BLUE, 0, {})
-           player.cards.add(i, 1, Gem.WHITE, 0, {})
-           player.cards.add(i, 1, Gem.BLACK, 0, {})
+           player.cards.add(Card(i, 1, Gem.RED, 0, {}))
+           player.cards.add(Card(i, 1, Gem.GREEN, 0, {}))
+           player.cards.add(Card(i, 1, Gem.BLUE, 0, {}))
+           player.cards.add(Card(i, 1, Gem.WHITE, 0, {}))
+           player.cards.add(Card(i, 1, Gem.BLACK, 0, {}))
         
-        
+        b._check_and_update_nobles(player)
+        print(player.nobles)
 
 
 if __name__ == "__main__":
