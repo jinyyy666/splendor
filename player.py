@@ -40,7 +40,7 @@ class ActionParams(object):
             Action.NONE: self.no_action,
         }
 
-        if not self._func_map[Action.PICK_THREE]:
+        if not self._func_map[action]:
             raise ValueError("Invalid argument!")
 
     def validate_pick_three(self):
