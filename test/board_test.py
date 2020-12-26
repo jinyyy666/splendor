@@ -56,6 +56,7 @@ class BoardTest(unittest.TestCase):
 
     def test_upadte_nobles(self):
         b = Board(2)
+        noble = b.nobles[0]
         player = Player(1)
     
         for i in range(10):
@@ -66,7 +67,8 @@ class BoardTest(unittest.TestCase):
            player.cards.add(Card(i, 1, Gem.BLACK, 0, {}))
         
         b._check_and_update_nobles(player)
-        print(player.nobles)
+        self.assertEqual(len(player.nobles), 1)
+        self.assertEqual(next(iter(player.nobles)), noble)
 
 
 if __name__ == "__main__":

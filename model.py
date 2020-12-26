@@ -3,7 +3,7 @@
 from enum import Enum
 import csv
 import random
-from util import can_get_gem
+from util import greater_than_or_equal_to
 
 
 class Gem(Enum):
@@ -30,5 +30,4 @@ class Noble(object):
 
     def can_attract(self, card_summary):
         '''Returns whether a player can attract the noble'''
-        print(card_summary)
-        return can_get_gem(self.cost, card_summary)
+        return greater_than_or_equal_to(card_summary, self.cost)

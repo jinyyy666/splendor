@@ -10,7 +10,7 @@ from model import (
     Noble,
 )
 from util import (
-    can_get_gem
+    greater_than_or_equal_to
 )
 
 
@@ -118,7 +118,7 @@ class Player(object):
     # ---------------------------------------------------------
     def pick_gems(self, gems, board):
         all_gems = board.get_gems()
-        if ( can_get_gem(all_gems, gems) ):
+        if ( greater_than_or_equal_to(all_gems, gems) ):
             # take the gems from the board
             board.take_gems(gems)
 
