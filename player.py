@@ -24,6 +24,37 @@ class Action(Enum):
     BUY_RESERVE_CARD = 4
     NONE = 5
 
+
+class ActionParams(object):
+    def __init__(self, action, gems, card_id):
+        self.action = action
+        self.gems = gems
+        self.card_id = card_id
+
+        self._func_map = {
+            Action.PICK_THREE: self.validate_pick_three,
+            Action.PICK_SAME: self.validate_pick_same,
+            Action.BUY_CARD: self.validate_reserve_card,
+            Action.BUY_RESERVE_CARD: self.validate_reserve_card,
+            Action.RESERVE_CARD: self.validate_reserve_card,
+            Action.NONE: self.no_action,
+        }
+
+        if not self._func_map[action]:
+            raise ValueError("Invalid argument!")
+
+    def validate_pick_three(self):
+        return len(self.gems) == 3 and Gem.GOLD not in self.gems
+
+    def validate_pick_same(self):
+        return len(self.gems) == 1 and Gem.GOLD not in self.gems
+
+    def validate_reserve_card(self):
+        return self.card_id >= 0 and self.card_id <= 89
+
+    def no_action(self):
+        pass
+
 class Player(object):
     def __init__(self, id):
         self.rep = 0
