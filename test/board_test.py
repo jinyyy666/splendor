@@ -74,7 +74,7 @@ class BoardTest(unittest.TestCase):
     def test_payback_gems(self):
         b = Board(2)
         player = Player(0)
-        original_board_gems = deepcopy(b.get_gems())
+        orginal_board_gems = deepcopy(b.get_gems())
 
         card = b.get_cards()[0][0]
 
@@ -84,7 +84,7 @@ class BoardTest(unittest.TestCase):
         current_gems = b.get_gems()
 
         for gem, cnt in current_gems.items():
-            self.assertEqual(cnt, original_board_gems[gem])
+            self.assertEqual(cnt, orginal_board_gems[gem])
 
 
 if __name__ == "__main__":
