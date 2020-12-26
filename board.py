@@ -43,6 +43,10 @@ class Board(object):
         '''Returns current development cards showing on the board'''
         return self.cards
 
+    def get_card(self, id):
+        '''Returns a developement card for a given id'''
+        return self.cards_map[id]
+
     def take_card(self, id):
         '''Takes a card from the board'''
         card = self.cards_map[id]
