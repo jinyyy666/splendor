@@ -45,12 +45,12 @@ class Player(object):
 
         # the gems player has via the develop card
         self.gems_from_card = {
-            gem: 0 for gem in Gem.__members__.keys()
+            gem: 0 for gem in Gem.__members__.values()
         }
 
         # the gems player has in hand
         self.gems_from_hand = {
-            gem: 0 for gem in Gem.__members__.keys()
+            gem: 0 for gem in Gem.__members__.values()
         }
 
         # the function map for simplicity:
@@ -96,7 +96,7 @@ class Player(object):
         return self.id
 
     def _add_gems(self, gems):
-        for gem_t, cnt in gems.items:
+        for gem_t, cnt in gems.items():
             self.gems_from_hand[gem_t] += cnt
 
 
