@@ -92,7 +92,7 @@ class Board(object):
 
     def _init_nobles(self):
         '''Initiates nobles for the board to start the game'''
-        for i in range(self.players_cnt + 1):
+        for _ in range(self.players_cnt + 1):
             self.nobles.append(self.all_nobles[self.noble_index])
             self.noble_index += 1
 
@@ -102,7 +102,7 @@ class Board(object):
         reader = csv.reader(fo)
         next(reader, None) # skip header
         id = 0
-        for i in range(3):
+        for _ in range(3):
             self.all_cards.append([])
 
         for line in reader:
@@ -112,7 +112,7 @@ class Board(object):
                 id, level, line[1], int(line[2]),
                 self._get_cost([c.value for c in Gem], line[3:]))
             self.all_cards[level - 1].append(card)
-            self.cards_map[id] = card;
+            self.cards_map[id] = card
             id += 1
         for cards in self.all_cards:
             random.shuffle(cards)
@@ -126,7 +126,6 @@ class Board(object):
         id = 0
         for line in reader:
             assert len(line) == 6
-            level = int(line[0])
             noble = Noble(id, int(line[2]), self._get_cost([c.value for c in Gem], line[1:]))
             id += 1
             self.all_nobles.append(noble)
@@ -144,6 +143,7 @@ class Board(object):
     def _check_and_update_nobles(self, player):
         '''Checks all nobles and take if possible'''
         idx_to_remove = -1
+        nobles = player.nobles
         for i in range(len(nobles)):
             if nobles[i].can_attract(player.card_summary):
                 player.attract_noble(nobles[i])
@@ -161,5 +161,5 @@ if __name__ == '__main__':
             if player.can_win():
                 can_win = True
     if can_win:
-        players.sort(key=lambda p: (-p.reputation, p.development_cards))
+        board.players.sort(key=lambda p: (-p.reputation, p.development_cards))
         print('Player {} won!'.format(p.id))

@@ -3,7 +3,7 @@
 from enum import Enum
 import csv
 import random
-import util
+from util import can_get_gem
 
 
 class Gem(Enum):
@@ -30,4 +30,5 @@ class Noble(object):
 
     def can_attract(self, card_summary):
         '''Returns whether a player can attract the noble'''
-        return util.can_get_gem(self.cost, card_summary)
+        print(card_summary)
+        return can_get_gem(self.cost, card_summary)

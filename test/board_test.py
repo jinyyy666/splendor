@@ -1,7 +1,12 @@
 #! /usr/local/bin/python3
 
 from board import Board
-from model import Gem
+from model import (
+    Gem,
+    Card,
+    Noble,
+)
+from player import Player
 
 import unittest
 
@@ -49,7 +54,21 @@ class BoardTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             b.take_gems(gems)
 
+    def test_upadte_nobles(self):
+        b = Board(2)
+        cost = b.nobles[0].cost
+        print(cost)
+        player = Player(1)
+    
+        for i in range(10):
+           player.cards.add(i, 1, Gem.RED, 0, {})
+           player.cards.add(i, 1, Gem.GREEN, 0, {})
+           player.cards.add(i, 1, Gem.BLUE, 0, {})
+           player.cards.add(i, 1, Gem.WHITE, 0, {})
+           player.cards.add(i, 1, Gem.BLACK, 0, {})
+        
+        
+
 
 if __name__ == "__main__":
     unittest.main()
-    print("Everything passed")
