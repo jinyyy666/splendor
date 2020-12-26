@@ -1,4 +1,6 @@
 #! /usr/local/bin/python3
+import unittest
+from copy import deepcopy
 
 from board import Board
 from model import (
@@ -7,8 +9,6 @@ from model import (
     Noble,
 )
 from player import Player
-
-import unittest
 
 
 class BoardTest(unittest.TestCase):
@@ -69,6 +69,22 @@ class BoardTest(unittest.TestCase):
         b._check_and_update_nobles(player)
         self.assertEqual(len(player.nobles), 1)
         self.assertEqual(next(iter(player.nobles)), noble)
+
+
+    def test_payback_gems(self):
+        b = Board(2)
+        player = Player(0)
+        original_board_gems = deepcopy(b.get_gems())
+
+        card = b.get_cards()[0][0]
+
+        # let the player takes the gems first and pay it back
+        player.pick_different_gems(card.cost, None, b)
+        b.payback_gems(card.cost)
+        current_gems = b.get_gems()
+
+        for gem, cnt in current_gems.items():
+            self.assertEqual(cnt, original_board_gems[gem])
 
 
 if __name__ == "__main__":

@@ -39,6 +39,11 @@ class Board(object):
         for gem, cnt in gems.items():
             self.gems[gem] -= cnt
 
+    def payback_gems(self, gems):
+        '''Pay back the gems to the board'''
+        for gem, cnt in gems.items():
+            self.gems[gem] += cnt
+
     def get_cards(self):
         '''Returns current development cards showing on the board'''
         return self.cards
