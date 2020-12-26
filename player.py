@@ -45,7 +45,7 @@ class Player(object):
         }
 
         # the gems player has in hand
-        self. = {
+        self.gems_from_hand = {
             gem: 0 for gem in Gem.__members__.keys()
         }
 
@@ -225,7 +225,7 @@ class Player(object):
                         assert(self.gems_from_hand[Gem.GOLD] >= 0)
                     else:
                         # you do not need to use gold:
-                        self.gens[g] -= gem_in_hand - remain
+                        self.gems_from_hand[g] -= gem_in_hand - remain
                 else:
                     raise ValueError(
                         'Not enough gem balance even you are using gold\n' +
@@ -245,9 +245,10 @@ class Player(object):
     # your strategy will being called here:
     def take_action(self, board):
         # your strategy, you need to provide:
-        # 1. which action is that
-        # 2. # gems you want to pick or spend
-        # 3. the card you want to buy or reserve
+        # 1. action type
+        # 2. params:
+        #   - # gems you want to pick 
+        #   - Or: the card you want to buy or reserve
         (action, gems, card) = self.next_step(board)
 
         self._func_map[action](gems, card, board)
