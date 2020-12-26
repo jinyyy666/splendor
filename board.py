@@ -10,10 +10,11 @@ from model import (
 from util import greater_than_or_equal_to
 import csv
 import random
+import json
 
 
 class Board(object):
-    def __init__(self, players_cnt):
+    def __init__(self, players_cnt, should_shuffle=False):
         self.players_cnt = players_cnt
         self.all_cards = []
         self.all_nobles = []
@@ -26,7 +27,7 @@ class Board(object):
         self.gems = {}
         self.players = []
 
-        self._load()
+        self._load(should_shuffle)
 
     def get_gems(self):
         '''Returns current gems showing on the board'''
@@ -63,24 +64,33 @@ class Board(object):
         '''Returns current nobles showing on the board'''
         return self.nobles
 
-    def _load(self):
+    def _load(self, should_shuffle):
         self._load_all_cards()
         self._load_all_nobles()
+        if should_shuffle:
+            self._shuffle()
         self._init_players()
-        self._init_cards()
         self._init_gems()
+        self._init_cards()
         self._init_nobles()
 
     def _init_players(self):
         '''Initiates players for the board to start the game'''
         for i in range(0, self.players_cnt):
             self.players.append(Player(i))
+        
+    def _shuffle(self):
+        '''Shuffle cards and nobles'''
+        for cards in self.all_cards:
+            random.shuffle(cards)
+        
+        random.shuffle(self.all_nobles)
 
     def _init_cards(self):
         '''Initiates development cards for the board to start the game'''
         for i in range(3):
             self.cards.append([])
-            for j in range(4):
+            for _ in range(4):
                 self.cards[i].append(self.all_cards[i][self.cards_index[i]])
                 self.cards_index[i] += 1
 
@@ -118,8 +128,6 @@ class Board(object):
             self.all_cards[level - 1].append(card)
             self.cards_map[id] = card
             id += 1
-        for cards in self.all_cards:
-            random.shuffle(cards)
         fo.close()
 
     def _load_all_nobles(self):
@@ -133,7 +141,6 @@ class Board(object):
             noble = Noble(id, int(line[2]), self._get_cost([gem for gem in Gem], line[1:]))
             id += 1
             self.all_nobles.append(noble)
-        random.shuffle(self.all_nobles)
         fo.close()
 
     def _get_cost(self, gems, values):
