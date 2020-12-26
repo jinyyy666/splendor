@@ -38,7 +38,7 @@ class Player(object):
         self.known_noble_ids = set()
 
         # the reversed cards
-        self.rev_cards = {}
+        self.rev_cards = set()
 
         # number of gold:
         self.gold = 0
@@ -84,7 +84,7 @@ class Player(object):
         for gem_t, cnt in card.cost.items():
             availb = total_available_gems[gem_t]
             if cnt > availb:
-                if cnt + gold_count > availb:
+                if cnt > availb + gold_count:
                     return False
                 else:
                     gold_count = gold_count - (cnt - availb)
@@ -92,8 +92,18 @@ class Player(object):
         return True
 
 
+    ## getters:
     def get_id(self):
         return self.id
+
+    def get_gems(self):
+        return self.gems_from_hand
+
+    def get_cards(self):
+        return self.cards
+
+    def get_rev_cards(self):
+        return self.rev_cards
 
     def _add_gems(self, gems):
         for gem_t, cnt in gems.items():
@@ -107,9 +117,6 @@ class Player(object):
                 summary[c.gem] = 0
             summary[c.gem] += 1
         return summary
-
-    def get_gems(self):
-        return self.gems_from_hand
         
 
     # ---------------------------------------------------------
@@ -152,7 +159,7 @@ class Player(object):
             )
 
         all_cards = board.get_cards()
-        all_cards_set = set(functools.reduce(operator.iconcat, all_cards.values(), []))
+        all_cards_set = set(functools.reduce(operator.iconcat, all_cards, []))
         assert (card in all_cards_set), (
             f"Try to buy a card {card.id} that is not on the current board! "
         )
@@ -205,11 +212,14 @@ class Player(object):
             raise ValueError("You cannot reserve the card because you have only reserved for three times!")
 
         all_cards = board.get_cards()
+        all_cards_set = set(functools.reduce(operator.iconcat, all_cards, []))
 
-        assert (card in all_cards), (
-            "Try to reserve a card {i} that is not in the board!".format(
-                i=card.id if card else -1
-            )
+        assert (card in all_cards_set), (
+            f"Try to reserve a card {card.id} that is not in the board!"
+        )
+
+        assert (card not in self.rev_cards), (
+            f"Try to reverse card: {card.id}, but you already have it!"
         )
 
         self.rev_cards.add(card)
@@ -226,11 +236,11 @@ class Player(object):
     # substract your gem, expect to update your current gems
     def update_gems(self, gem_cost):
         for g, v in gem_cost.items():
-            gem_in_hand = self.gems_from_hand[g] if g in gems else 0
-            gem_from_card = self.gems_from_card[g]
+            gem_in_hand = self.gems_from_hand.get(g, 0)
+            gem_from_card = self.gems_from_card.get(g, 0)
 
             if (gem_in_hand + gem_from_card < v):
-                gold_count = self.gems_from_hand[Gem.GOLD] if self.gems_from_hand[Gem.GOLD] > 0 else 0
+                gold_count = self.gems_from_hand.get(Gem.GOLD, 0)
                 if (gem_in_hand + gem_from_card + gold_count >= v):
                     # substract the permanent gem:
                     remain = v - gem_from_card
@@ -245,9 +255,9 @@ class Player(object):
                 else:
                     raise ValueError(
                         'Not enough gem balance even you are using gold\n' +
-                        'You need: {}\n'.format('\n'.join(str(k) + ':' + v for k, v in gem_cost.items())) +
-                        'But you have: {}'.format('\n'.join(str(k) + ':' + v for k, v in self.gems_from_hand.items())) +
-                        'And your card value: {}'.format('\n'.join(str(k) + ':' + v for k, v in self.gems_from_card.items()))
+                        'You need: {}\n'.format('\n'.join(f'{k}:{v}' for k, v in gem_cost.items())) +
+                        'But you have: {}'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_hand.items())) +
+                        'And your card value: {}'.format('\n'.join(f'{k}:{v}' for k, v in self.gems_from_card.items()))
                     )
             else:
                 remain = v - gem_from_card
