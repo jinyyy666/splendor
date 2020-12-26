@@ -46,10 +46,12 @@ class Board(object):
 
     def get_card(self, id):
         '''Returns a developement card for a given id'''
-        return self.cards_map[id]
+        return self.cards_map.get(id, None)
 
     def take_card(self, id):
         '''Takes a card from the board'''
+        if id not in self.cards_map:
+            raise ValueError("invalid card_id")
         card = self.cards_map[id]
         level = card.level
         for i in range(4):
