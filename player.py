@@ -1,12 +1,12 @@
 #! /usr/local/bin/python3
 import collections, functools, itertools, operator
 from enum import Enum
-from .board import (
+from board import (
     Gem,
     Card,
     Noble,
 )
-from .util import (
+from util import (
     can_get_gem
 )
 
@@ -73,11 +73,11 @@ class Player(object):
 
     def can_afford(self, card):
         c_dict = collections.defaultdict(int)
-        for k, v in itertools.chain(self.gems_from_card.items(), self..items()):
+        for k, v in itertools.chain(self.gems_from_card.items(), self.gems_from_hand.items()):
             c_dict[k] += v
         total_available_gems = dict(c_dict)
 
-        gold_count = self.[Gem.GOLD]
+        gold_count = self.gems_from_hand[Gem.GOLD]
         for gem_t, cnt in card.cost.items():
             availb = total_available_gems[gem_t]
             if cnt > availb:
@@ -94,7 +94,7 @@ class Player(object):
 
     def _add_gems(self, gems):
         for gem_t, cnt in gems.items:
-            self.[gem_t] += cnt
+            self.gems_from_hand[gem_t] += cnt
 
 
     # ---------------------------------------------------------
@@ -116,7 +116,7 @@ class Player(object):
         else:
             raise ValueError(
                 'Invalid gems counts! You want to get: {want}, but the Board only has: {existing}'.format(
-                    want='\n'.join([str(k) + ":" + v for k, v in gems])
+                    want='\n'.join([str(k) + ":" + v for k, v in gems]),
                     existing='\n'.join([str(k) + ":" + v for k, v in all_gems])
                 )
             )
@@ -214,7 +214,7 @@ class Player(object):
             gem_from_card = self.gems_from_card[g]
 
             if (gem_in_hand + gem_from_card < v):
-                gold_count = self.gems_from_hand[Gem.GOLD] if self.gems_from_handGem.GOLD] > 0 else 0
+                gold_count = self.gems_from_hand[Gem.GOLD] if self.gems_from_hand[Gem.GOLD] > 0 else 0
                 if (gem_in_hand + gem_from_card + gold_count >= v):
                     # substract the permanent gem:
                     remain = v - gem_from_card
@@ -222,7 +222,7 @@ class Player(object):
                         # you will have to use gold here
                         self.gems_from_hand[g] = 0
                         self.gems_from_hand[Gem.GOLD] -= remain - gem_in_hand
-                        assert(self.gems_from_hand[Gem.GOLD] >= 0)
+                        assert (self.gems_from_hand[Gem.GOLD] >= 0)
                     else:
                         # you do not need to use gold:
                         self.gems_from_hand[g] -= gem_in_hand - remain
