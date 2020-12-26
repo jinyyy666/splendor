@@ -47,7 +47,7 @@ class ActionParams(object):
         return len(self.gems) == 3 and Gem.GOLD not in self.gems
 
     def validate_pick_same(self):
-        return len(self.gems) == 1 and Gem.GOLD in self.gems
+        return len(self.gems) == 1 and Gem.GOLD not in self.gems
 
     def validate_reserve_card(self):
         return self.card_id >= 0 and self.card_id <= 89
