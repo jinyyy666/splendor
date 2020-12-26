@@ -1,5 +1,3 @@
-
-
 import functools
 import itertools
 import operator
@@ -23,7 +21,8 @@ class Action(Enum):
     PICK_SAME = 1
     BUY_CARD = 2
     RESERVE_CARD = 3
-    NONE = 4
+    BUY_RESERVE_CARD = 4
+    NONE = 5
 
 class Player(object):
     def __init__(self, id):
@@ -32,11 +31,11 @@ class Player(object):
         self.reserve_count = 0
 
         # all the development cards the player has
-        self.cards = {}
+        self.cards = set()
 
         # all nobles attracted by the player
-        self.nobles = {}
-        self.known_noble_ids = {}
+        self.nobles = set()
+        self.known_noble_ids = set()
 
         # the reversed cards
         self.rev_cards = {}
@@ -63,7 +62,6 @@ class Player(object):
             Action.RESERVE_CARD: self.reserve_card,
             Action.NONE: self.no_action,
         }
-
 
     def attract_noble(self, noble):
         assert (noble.id not in self.known_noble_ids)
@@ -109,6 +107,7 @@ class Player(object):
                 summary[c.gem] = 0
             summary[c.gem] += 1
         return summary
+        
 
     # ---------------------------------------------------------
     # Here are all the standard operations the player can take
@@ -119,7 +118,7 @@ class Player(object):
     # ---------------------------------------------------------
     def pick_gems(self, gems, board):
         all_gems = board.get_gems()
-        if (can_get_gem(all_gems, gems)):
+        if ( can_get_gem(all_gems, gems) ):
             # take the gems from the board
             board.take_gems(gems)
 
@@ -142,7 +141,7 @@ class Player(object):
     def pick_different_gems(self, gems, card, board):
         self.pick_gems(gems, board)
 
-
+    
     def buy_board_card(self, gems, card, board):
         if not self.can_afford(card):
             raise ValueError(
@@ -170,7 +169,7 @@ class Player(object):
 
         board.take_card(card.id)
 
-
+    
     def buy_reserve_card(self, gems, card, board):
         if not self.can_afford(card):
             raise ValueError(
@@ -197,6 +196,7 @@ class Player(object):
         self.rev_cards.remove(card)
         self.reserve_count -= 1
 
+    
     def reserve_card(self, gems, card, board):
         if self.reserve_count >= 3:
             raise ValueError("You cannot reserve the card because you have only reserved for three times!")
@@ -219,7 +219,7 @@ class Player(object):
     def no_action(self, gems, card, board):
         pass
 
-
+    
     # substract your gem, expect to update your current gems
     def update_gems(self, gem_cost):
         for g, v in gem_cost.items():
@@ -254,7 +254,7 @@ class Player(object):
                     self.gems_from_hand[g] -= remain
                     assert(self.gems_from_hand[g] >= 0)
 
-
+    
     # your strategy will being called here:
     def take_action(self, board):
         # your strategy, you need to provide:
@@ -265,3 +265,8 @@ class Player(object):
         (action, gems, card) = self.next_step(board)
 
         self._func_map[action](gems, card, board)
+
+    # dummy at this moment:
+    def next_step(self, board):
+        return Action.NONE, None, None
+    
