@@ -57,8 +57,10 @@ class Board(object):
         '''Takes a card from the board'''
         if id not in self.cards_map:
             raise ValueError("invalid card_id")
+        
         card = self.cards_map[id]
-        level = card.level
+        ## notice that the level in the card is starting from 1 !
+        level = card.level - 1
         for i in range(4):
             if (self.cards[level][i].id == id):
                 del self.cards[level][i]
@@ -129,6 +131,7 @@ class Board(object):
         for line in reader:
             assert len(line) == 8
             level = int(line[0])
+            assert (level >= 1 and level <= 3)
             card = Card(
                 id, level, Gem._value2member_map_[line[1]], int(line[2]),
                 self._get_cost([gem for gem in Gem], line[3:]))
