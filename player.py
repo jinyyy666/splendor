@@ -4,7 +4,7 @@ import operator
 import collections
 
 from enum import Enum
-from board import (
+from model import (
     Gem,
     Card,
     Noble,
@@ -147,7 +147,7 @@ class Player(object):
             raise ValueError(
                 f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.gems_from_hand}; gems from card: {self.gems_from_card}"
             )
-        
+
         all_cards = board.get_cards()
         all_cards_set = set(functools.reduce(operator.iconcat, all_cards.values(), []))
         assert (card in all_cards_set), (
@@ -173,7 +173,7 @@ class Player(object):
     def buy_reserve_card(self, gems, card, board):
         if not self.can_afford(card):
             raise ValueError(
-                f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.}; gems from card: {self.gems_from_card}"
+                f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.gems_from_hand}; gems from card: {self.gems_from_card}"
             )
 
         assert (card in self.rev_cards), (
@@ -214,7 +214,7 @@ class Player(object):
 
         board.take_card(card.id)
         self.reserve_count += 1
-        
+
 
     def no_action(self, gems, card, board):
         pass
@@ -260,7 +260,7 @@ class Player(object):
         # your strategy, you need to provide:
         # 1. action type
         # 2. params:
-        #   - # gems you want to pick 
+        #   - # gems you want to pick
         #   - Or: the card you want to buy or reserve
         (action, gems, card) = self.next_step(board)
 
