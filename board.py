@@ -74,7 +74,6 @@ class Board(object):
         for i in range(3):
             self.cards.append([])
             for j in range(4):
-                print(self.all_cards[i][self.cards_index[i]])
                 self.cards[i].append(self.all_cards[i][self.cards_index[i]])
                 self.cards_index[i] += 1
 
@@ -88,7 +87,7 @@ class Board(object):
     def _init_nobles(self):
         '''Initiates nobles for the board to start the game'''
         for i in range(3):
-            self.nobles.append(self.all_nobles[self.noble_index[i]])
+            self.nobles.append(self.all_nobles[self.noble_index])
             self.noble_index += 1
 
     def _load_all_cards(self):
