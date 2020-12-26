@@ -41,7 +41,7 @@ class ActionParams(object):
         }
 
         if not self._func_map[action]:
-            raise ValueError("Invalid argument!")
+            raise ValueError(f"Invalid argument for action: {action}!")
 
     def validate_pick_three(self):
         return len(self.gems) == 3 and Gem.GOLD not in self.gems
@@ -306,11 +306,11 @@ class Player(object):
         # 2. params:
         #   - # gems you want to pick
         #   - Or: the card you want to buy or reserve
-        (action, gems, card) = self.next_step(board)
 
-        self._func_map[action](gems, card, board)
-
-    # dummy at this moment:
-    def next_step(self, board):
-        return Action.NONE, None, None
+        # action_params = self.strategy.next_step(board, self, other_players)
+        # action, gems, card_id = action_params.action, action_params.gems, action_param.card_id 
+        # card = board.get_card(card_id)
+        #self._func_map[action](gems, card, board)
+        pass
+    
     
