@@ -97,6 +97,14 @@ class Player(object):
             self.gems_from_hand[gem_t] += cnt
 
 
+    def card_summary(self):
+        summary = {}
+        for c in self.cards:
+            if c.gem not in summary:
+                summary[c.gem] = 0
+            summary[c.gem] += 1
+        return summary
+
     # ---------------------------------------------------------
     # Here are all the standard operations the player can take
     # 1. pick three different gems
