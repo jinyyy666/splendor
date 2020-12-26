@@ -1,5 +1,5 @@
-def can_get_gem(all_gems, gems):
-    for gem_t, cnt in gems.items():
-        if cnt > all_gems[gem_t]:
+def greater_than_or_equal_to(left, right):
+    for k, v in right.items():
+        if v > left[k]:
             return False
     return True

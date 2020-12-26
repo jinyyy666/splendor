@@ -7,7 +7,7 @@ from model import (
     Card,
     Noble,
 )
-from util import can_get_gem
+from util import greater_than_or_equal_to
 import csv
 import random
 
@@ -34,7 +34,7 @@ class Board(object):
 
     def take_gems(self, gems):
         '''Takes gems from the board'''
-        if not can_get_gem(self.gems, gems):
+        if not greater_than_or_equal_to(self.gems, gems):
             raise ValueError("not enough gems")
         for gem, cnt in gems.items():
             self.gems[gem] -= cnt
@@ -110,7 +110,7 @@ class Board(object):
             level = int(line[0])
             card = Card(
                 id, level, line[1], int(line[2]),
-                self._get_cost([c.value for c in Gem], line[3:]))
+                self._get_cost([gem for gem in Gem], line[3:]))
             self.all_cards[level - 1].append(card)
             self.cards_map[id] = card
             id += 1
@@ -126,7 +126,7 @@ class Board(object):
         id = 0
         for line in reader:
             assert len(line) == 6
-            noble = Noble(id, int(line[2]), self._get_cost([c.value for c in Gem], line[1:]))
+            noble = Noble(id, int(line[2]), self._get_cost([gem for gem in Gem], line[1:]))
             id += 1
             self.all_nobles.append(noble)
         random.shuffle(self.all_nobles)
@@ -147,6 +147,7 @@ class Board(object):
         for i in range(len(nobles)):
             if nobles[i].can_attract(player.card_summary()):
                 player.attract_noble(nobles[i])
+                idx_to_remove = i
                 break
         if idx_to_remove >= 0:
             del nobles[i]
