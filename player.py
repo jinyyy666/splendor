@@ -146,7 +146,7 @@ class Player(object):
     def buy_board_card(self, gems, card, board):
         if not self.can_afford(card):
             raise ValueError(
-                f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.}; gems from card: {self.gems_from_card}"
+                f"Trying to buy a card with required gems {card.cost}, gems at hand: {self.gems_from_hand}; gems from card: {self.gems_from_card}"
             )
         
         all_cards = board.get_cards()
