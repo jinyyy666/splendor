@@ -46,7 +46,7 @@ class ActionParams(object):
             )
 
     def validate_pick_three(self):
-        return len(self.gems) == 3 and Gem.GOLD not in self.gems
+        return len(self.gems) >= 1 and len(self.gems) <= 3 and Gem.GOLD not in self.gems
 
     def validate_pick_same(self):
         return len(self.gems) == 1 and Gem.GOLD not in self.gems
