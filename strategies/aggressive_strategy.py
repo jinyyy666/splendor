@@ -73,8 +73,9 @@ class AggressiveStrategy(Strategy):
         if gold_count > 0:
             for g, c in gems_to_pay.items():
                 if c > 0:
-                    gems_to_pay[g] -= 1
-                    gold_count -= 1
+                    while (gold_count > 0) and (gems_to_pay[g] > 0):
+                        gems_to_pay[g] -= 1
+                        gold_count -= 1
                 if gold_count == 0:
                     break
 
@@ -89,7 +90,7 @@ class AggressiveStrategy(Strategy):
         return dist, gems_to_pay
 
 
-    def get_card_value(self, card_gem, can_afford, dist, ply_card_summary):
+    def get_card_value(self, card_gem, card_rep, can_afford, dist, ply_card_summary):
         aff_score = 2 if can_afford else 0
         dist_score = math.exp(-1 * dist)
 
@@ -114,7 +115,7 @@ class AggressiveStrategy(Strategy):
 
         card_gem_score = 1 if var_old > var_new else 0
 
-        return aff_score + dist_score + card_gem_score
+        return aff_score + dist_score + card_gem_score + card_rep
 
 
     def get_current_cards_summary(self, cards):
@@ -125,16 +126,18 @@ class AggressiveStrategy(Strategy):
         for card in cards:
             dist, diff = self.compute_distance(eff_gems, card.cost)
             can_afford = self.player.can_afford(card)
-            value = self.get_card_value(card.gem, can_afford, dist, ply_card_summary)
+            value = self.get_card_value(card.gem, card.reputation, can_afford, dist, ply_card_summary)
             summary.append(CardValue(card.id, can_afford, value, dist, diff))
 
         return summary
 
     def next_step(self):
-        #print(f'In step: {self.steps}')
+        print(f'In step: {self.steps}')
         self.steps = self.steps + 1
         cards = self.board.get_cards()
         cards_list = functools.reduce(operator.iconcat, cards, [])
+        cards_list.reverse()
+
         gems_on_board = self.board.get_gems()
 
         # get a collective view of the current cards
@@ -146,36 +149,41 @@ class AggressiveStrategy(Strategy):
 
         selected_card_stat = sorted_card_vals[0]
 
-        if selected_card_stat.can_afford:
-            #print(f'buy card: {selected_card_stat.card_id}')
-            return ActionParams(Action.BUY_CARD, None, selected_card_stat.card_id)
+        for sorted_value in sorted_card_vals[:5]:
+            if sorted_value.can_afford:
+                print(f'buy card: {sorted_value.card_id}')
+                return ActionParams(self.player.id, Action.BUY_CARD, None, sorted_value.card_id)
+        
+        req_gems = selected_card_stat.req_gems
+        gems_to_pick = deepcopy(req_gems)
+        
+        distance = selected_card_stat.dist
+        if distance > 3:
+            for g, c in req_gems.items():
+                if c > 1:
+                    gems_to_pick[g] -= 1
+        elif distance < 3:
+            total = distance
+            for g in Gem:
+                if g == Gem.GOLD:
+                    continue
+                if g not in gems_to_pick:
+                    gems_to_pick[g] = 1
+                    total += 1
+                if total == 3:
+                    break
+        if greater_than_or_equal_to(gems_on_board, gems_to_pick):
+            print(f'pick three gems - 1: {gems_to_pick}')
+            return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
         else:
-            req_gems = selected_card_stat.req_gems
-            gems_to_pick = deepcopy(req_gems)
-            
-            distance = selected_card_stat.dist
-            if distance > 3:
-                for g, c in req_gems.items():
-                    if c > 1:
-                        gems_to_pick[g] -= 1
-            elif distance < 3:
-                total = distance
-                for g in Gem:
-                    if g == Gem.GOLD:
-                        continue
-                    if g not in gems_to_pick:
-                        gems_to_pick[g] = 1
-                        total += 1
-                    if total == 3:
-                        break
-            if greater_than_or_equal_to(gems_on_board, gems_to_pick):
-                return ActionParams(Action.PICK_THREE, gems_to_pick, None)
+            if len(self.player.get_rev_cards()) == 3:
+                gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board)
+                if len(gems_to_pick) == 0:
+                    import pdb; pdb.set_trace()
+                print(f'pick three gems - 2: {gems_to_pick}')
+                return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
             else:
-                #import pdb; pdb.set_trace()
-                if len(self.player.get_rev_cards()) == 3:
-                    gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board)
-                    return ActionParams(Action.PICK_THREE, gems_to_pick, None)
-                else:
-                    return ActionParams(Action.RESERVE_CARD, None, cards_list[0].id)
+                print(f'Reserve card: {cards_list[0].id}')
+                return ActionParams(self.player.id, Action.RESERVE_CARD, None, cards_list[0].id)
 
             #return ActionParams(Action.PICK_THREE, gems_to_pick, None)

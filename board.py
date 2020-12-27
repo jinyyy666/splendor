@@ -1,6 +1,9 @@
 from enum import Enum
 from player import Player
 from strategies.naive_strategy import NaiveStrategy
+from strategies.aggressive_strategy import AggressiveStrategy
+from strategies.smart_strategy import SmartStrategy
+
 
 from model import (
     Gem,
@@ -90,8 +93,12 @@ class Board(object):
         for i in range(0, self.players_cnt):
             self.players.append(Player(i))
         
-        for player in self.players:
-            player.set_strategy(NaiveStrategy(self, player))
+        self.players[0].set_strategy(NaiveStrategy(self, self.players[0]))
+        self.players[1].set_strategy(AggressiveStrategy(self, self.players[1]))
+        self.players[2].set_strategy(SmartStrategy(self, self.players[2]))
+
+        #for player in self.players:
+        #    player.set_strategy(NaiveStrategy(self, player))
 
     def _shuffle(self):
         '''Shuffle cards and nobles'''

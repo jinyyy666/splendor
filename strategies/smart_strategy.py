@@ -103,13 +103,13 @@ class SmartStrategy(Strategy):
         for card in cards_list:
             # just buy the card if it can afford
             if self.player.can_afford(card):
-                return ActionParams(Action.BUY_CARD, None, card.id)
+                return ActionParams(self.player.id, Action.BUY_CARD, None, card.id)
 
         # if you cannot afford anything, get gems if possible:
         gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board, current_gems)
         if greater_than_or_equal_to(gems_on_board, gems_to_pick):
-            return ActionParams(Action.PICK_THREE, gems_to_pick, None)
+            return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
         else:
             #import pdb; pdb.set_trace()
-            return ActionParams(Action.RESERVE_CARD, None, cards_list[0].id)
+            return ActionParams(self.player.id, Action.RESERVE_CARD, None, cards_list[0].id)
 

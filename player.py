@@ -24,7 +24,8 @@ class Action(Enum):
 
 
 class ActionParams(object):
-    def __init__(self, action, gems, card_id):
+    def __init__(self, player_id, action, gems, card_id):
+        self.player_id = player_id
         self.action = action
         self.gems = gems
         self.card_id = card_id
@@ -38,8 +39,11 @@ class ActionParams(object):
             Action.NONE: self.no_action,
         }
 
-        if not self._func_map[action]:
-            raise ValueError(f"Invalid argument for action: {action}!")
+        if not self._func_map[action]():
+            raise ValueError(
+                f"Player {self.player_id} submits invalid argument for action: {action}!! \n" + 
+                f"Gem counts: {self.gems}, card to purchase: {self.card_id}"
+            )
 
     def validate_pick_three(self):
         return len(self.gems) == 3 and Gem.GOLD not in self.gems
