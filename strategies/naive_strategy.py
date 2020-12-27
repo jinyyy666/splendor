@@ -40,11 +40,12 @@ class NaiveStrategy(Strategy):
         sorted_x = sorted(gem_scores.items(), key=lambda kv: kv[1], reverse=True)
         gems_to_pick = {}
         for gem, _ in sorted_x:
+            if gem == Gem.GOLD:
+                continue
             if gems_on_board[gem] > 0:
                 gems_to_pick[gem] = 1
             if len(gems_to_pick) == 3:
                 break
-        
         return gems_to_pick
 
 
@@ -63,9 +64,8 @@ class NaiveStrategy(Strategy):
 
         # if you cannot afford anything, get gems if possible:
         gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board)
-        if greater_than_or_equal_to(gems_on_board, gems_to_pick):
+        if greater_than_or_equal_to(gems_on_board, gems_to_pick) and len(gems_to_pick) > 0:
             return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
         else:
-            #import pdb; pdb.set_trace()
             return ActionParams(self.player.id, Action.RESERVE_CARD, None, cards_list[0].id)
 
