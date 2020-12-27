@@ -49,7 +49,7 @@ class NaiveStrategy(Strategy):
 
 
     def next_step(self):
-        print(f'In step: {self.steps}')
+        # print(f'In step: {self.steps}')
         self.steps = self.steps + 1
         cards = self.board.get_cards()
         cards_list = functools.reduce(operator.iconcat, cards, [])
@@ -58,7 +58,7 @@ class NaiveStrategy(Strategy):
         for card in cards_list:
             # just buy the card if it can afford
             if self.player.can_afford(card):
-                print(f'buy card: {card.id}')
+                # print(f'buy card: {card.id}')
                 return ActionParams(Action.BUY_CARD, None, card.id)
 
         # if you cannot afford anything, get gems if possible:

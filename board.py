@@ -1,5 +1,3 @@
-#! /usr/local/bin/python3
-
 from enum import Enum
 from player import Player
 from strategies.naive_strategy import NaiveStrategy
@@ -195,16 +193,3 @@ class Board(object):
             if candidate.rep == winner_rep and len(candidate.cards) == winner_cards:
                 winners.append(candidate)
         return winners
-
-if __name__ == '__main__':
-    board = Board(2, should_shuffle=True)
-    can_win = False
-    while not can_win:
-        # take turns
-        for player in board.players:
-            player.take_action(board)
-            board._check_and_update_nobles(player)
-            if player.can_win(board.points_to_win):
-                can_win = True
-    if can_win:
-        print('Winners: {}!'.format([(p.id, p.rep, len(p.cards), len(p.nobles)) for p in board._get_winners()]))
