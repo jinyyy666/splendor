@@ -19,25 +19,29 @@ import unittest
 class EndToEndTest(unittest.TestCase):
 
     def test_end_to_end(self):
-        actions = []
+        action_params = []
         with open('test/data/actions.json') as f:
             data = json.load(f)
             actions = data['actions']
+            for action in actions:
+                action_params.append(self._convert(action))
 
-        action_params = []
-        for action in actions:
-            action_params.append(self._convert(action))
-
-        b = Board(2, False)
+        b = Board(2, False, 0)
+        b.nobles[0] = Noble(0, 3, {Gem.BLACK: 2})
         players = b.players
         player_idx = 0
         for action in action_params:
             player = players[player_idx]
             player.take_external_action(action, b)
-            player_idx = ~player_idx
+            b._check_and_update_nobles(player)
+            player_idx = 1 - player_idx
 
-        self.assertEqual(next(iter(players[0].cards)), b.get_card(0))
-        self.assertEqual(next(iter(players[1].cards)), b.get_card(1))
+        self.assertEqual(len(players[0].cards), 2)
+        self.assertEqual(len(players[1].cards), 1)
+        self.assertEqual(players[0].rep, 3)
+        self.assertEqual(players[1].rep, 0)
+        self.assertEqual(len(b._get_winners()), 1)
+        self.assertEqual(b._get_winners()[0], players[0])
     
     def _convert(self, obj):
         action = Action[obj['action']]

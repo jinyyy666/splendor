@@ -174,16 +174,32 @@ class Board(object):
                 break
         if idx_to_remove >= 0:
             del nobles[i]
+    
+    def _get_winners(self):
+        candidates = []
+        for player in self.players:
+            if player.can_win(self.points_to_win):
+                candidates.append(player)
+        if not candidates:
+            return None
+        candidates.sort(key=lambda p: (-p.rep, len(p.cards)))
+        winners = []
+        winner_rep = candidates[0].rep
+        winner_cards = len(candidates[0].cards)
+        for candidate in candidates:
+            if candidate.rep == winner_rep and len(candidate.cards) == winner_cards:
+                winners.append(candidate)
+        return winners
 
 if __name__ == '__main__':
     board = Board(2)
     can_win = False
     while not can_win:
+        # take turns
         for player in board.players:
             player.take_action(board)
             board._check_and_update_nobles(player)
             if player.can_win(board.points_to_win):
                 can_win = True
     if can_win:
-        board.players.sort(key=lambda p: (-p.reputation, p.development_cards))
-        print('Player {} won!'.format(board.players[0].id))
+        print('Winners: {}!'.format(board._get_winners()))

@@ -45,6 +45,41 @@
           "player":1,
           "action":"BUY_CARD",
           "card": 1
+       },
+       {
+          "player":0,
+          "action":"PICK_THREE",
+          "gems":[
+             "BLUE",
+             "WHITE",
+             "BLACK"
+          ]
+       },
+       {
+          "player":1,
+          "action":"NONE"
+       },
+       {
+          "player":0,
+          "action":"PICK_THREE",
+          "gems":[
+             "BLUE",
+             "WHITE",
+             "BLACK"
+          ]
+       },
+       {
+          "player":1,
+          "action":"NONE"
+       },
+       {
+          "player":0,
+          "action":"BUY_CARD",
+          "card": 2
+       },
+       {
+          "player":1,
+          "action":"NONE"
        }
     ]
  }
