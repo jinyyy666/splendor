@@ -12,9 +12,10 @@ import csv
 import random
 import json
 
+REPUTATION_TO_WIN = 15
 
 class Board(object):
-    def __init__(self, players_cnt, should_shuffle=False, points_to_win=15):
+    def __init__(self, players_cnt, should_shuffle=False, points_to_win=REPUTATION_TO_WIN):
         self.players_cnt = players_cnt
         self.points_to_win = points_to_win
         self.all_cards = []

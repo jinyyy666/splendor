@@ -14,8 +14,6 @@ from util import (
 )
 
 
-REPUTATION_TO_WIN = 15
-
 class Action(Enum):
     PICK_THREE = 0
     PICK_SAME = 1
