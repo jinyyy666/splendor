@@ -17,8 +17,9 @@ from util import (
 
 
 class CardValue(object):
-    def __init__(self, card_id, can_afford, value, dist, req_gems):
+    def __init__(self, card_id, card_rep, can_afford, value, dist, req_gems):
         self.card_id = card_id
+        self.card_reputation = card_rep
         self.can_afford = can_afford
         self.value = value
         self.dist = dist
@@ -38,20 +39,25 @@ class AggressiveStrategy(Strategy):
         super().__init__(board, [player])
 
     ## just pick the top three most common gems
-    def recommend_gems_to_pick(self, all_cards, gems_on_board):
-        def _lvl_score(lvl):
-            return math.exp(-1 * lvl)
-
+    def recommend_gems_to_pick(self, gems_on_board, sorted_card_values):
         gem_scores = {gem : 0 for gem in Gem}
-        for lvl, cards in enumerate(all_cards):
-            for card in cards:
-                for g, cnt in card.cost.items():
-                    gem_scores[g] += cnt * _lvl_score(lvl)
 
-        sorted_x = sorted(gem_scores.items(), key=lambda kv: kv[1], reverse=True)
+        for c_v in sorted_card_values:
+            for g, c in c_v.req_gems.items():
+                if g == Gem.GOLD:
+                    import pdb; pdb.set_trace()
+
+                gem_scores[g] += math.log(1 + c_v.value) * c
+
+        sorted_v = sorted(gem_scores.items(), key=lambda kv: kv[1], reverse=True)
         gems_to_pick = {}
-        for gem, _ in sorted_x:
+        
+        for gem, _ in sorted_v:
+            if gem == Gem.GOLD:
+                continue
             if gems_on_board[gem] > 0:
+                if gem == Gem.GOLD:
+                    import pdb; pdb.set_trace()
                 gems_to_pick[gem] = 1
             if len(gems_to_pick) == 3:
                 break
@@ -114,8 +120,8 @@ class AggressiveStrategy(Strategy):
                     var_new += abs((c + 1) - mean_c) ** 2
 
         card_gem_score = 1 if var_old > var_new else 0
-
-        return aff_score + dist_score + card_gem_score + card_rep
+        card_rep_score = math.log( 1 + card_rep )
+        return aff_score + dist_score + card_gem_score + card_rep_score
 
 
     def get_current_cards_summary(self, cards):
@@ -127,12 +133,12 @@ class AggressiveStrategy(Strategy):
             dist, diff = self.compute_distance(eff_gems, card.cost)
             can_afford = self.player.can_afford(card)
             value = self.get_card_value(card.gem, card.reputation, can_afford, dist, ply_card_summary)
-            summary.append(CardValue(card.id, can_afford, value, dist, diff))
+            summary.append(CardValue(card.id, card.reputation, can_afford, round(value, 2), dist, diff))
 
         return summary
 
     def next_step(self):
-        print(f'In step: {self.steps}')
+        # print(f'In step: {self.steps}')
         self.steps = self.steps + 1
         cards = self.board.get_cards()
         cards_list = functools.reduce(operator.iconcat, cards, [])
@@ -147,43 +153,20 @@ class AggressiveStrategy(Strategy):
 
         sorted_card_vals = sorted(card_values, key=lambda c: c.value, reverse=True)
 
-        selected_card_stat = sorted_card_vals[0]
+        # only for debugging:
+        # print([ (c.card_id, c.card_reputation, c.can_afford, c.value, c.req_gems, c.dist) for c in sorted_card_vals ])
 
+        # try to buy the top 5 cards
         for sorted_value in sorted_card_vals[:5]:
             if sorted_value.can_afford:
-                print(f'buy card: {sorted_value.card_id}')
+                # print(f'buy card: {sorted_value.card_id}')
                 return ActionParams(self.player.id, Action.BUY_CARD, None, sorted_value.card_id)
         
-        req_gems = selected_card_stat.req_gems
-        gems_to_pick = deepcopy(req_gems)
-        
-        distance = selected_card_stat.dist
-        if distance > 3:
-            for g, c in req_gems.items():
-                if c > 1:
-                    gems_to_pick[g] -= 1
-        elif distance < 3:
-            total = distance
-            for g in Gem:
-                if g == Gem.GOLD:
-                    continue
-                if g not in gems_to_pick:
-                    gems_to_pick[g] = 1
-                    total += 1
-                if total == 3:
-                    break
-        if greater_than_or_equal_to(gems_on_board, gems_to_pick):
-            print(f'pick three gems - 1: {gems_to_pick}')
+        # if we cannot afford them, let's collect gems to get closer
+        gems_to_pick = self.recommend_gems_to_pick(gems_on_board, sorted_card_vals[:5])
+        if greater_than_or_equal_to(gems_on_board, gems_to_pick) and len(gems_to_pick) > 0:
+            # print(f'pick three gems - 1: {gems_to_pick}')
             return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
         else:
-            if len(self.player.get_rev_cards()) == 3:
-                gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board)
-                if len(gems_to_pick) == 0:
-                    import pdb; pdb.set_trace()
-                print(f'pick three gems - 2: {gems_to_pick}')
-                return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
-            else:
-                print(f'Reserve card: {cards_list[0].id}')
-                return ActionParams(self.player.id, Action.RESERVE_CARD, None, cards_list[0].id)
-
-            #return ActionParams(Action.PICK_THREE, gems_to_pick, None)
+            # print(f'Reserve card: {cards_list[0].id}')
+            return ActionParams(self.player.id, Action.RESERVE_CARD, None, cards_list[0].id)
