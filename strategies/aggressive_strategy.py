@@ -142,7 +142,6 @@ class AggressiveStrategy(Strategy):
         self.steps = self.steps + 1
         cards = self.board.get_cards()
         cards_list = functools.reduce(operator.iconcat, cards, [])
-        cards_list.reverse()
 
         gems_on_board = self.board.get_gems()
 

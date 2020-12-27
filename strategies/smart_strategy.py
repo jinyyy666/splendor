@@ -67,26 +67,30 @@ class SmartStrategy(Strategy):
         sorted_cards = sorted(candidates.items(), key=lambda kv: kv[1])
         for card_id, _ in sorted_cards:
             for gem in needs[card_id]:
-                if gems_on_board[gem] > 0:
-                    gems_to_pick[gem] = 1
                 if len(gems_to_pick) == 3:
                     break
+                if gems_on_board[gem] > 0:
+                    gems_to_pick[gem] = 1
+
 
         sorted_x = sorted(gem_scores.items(), key=lambda kv: kv[1], reverse=True)
         for gem, _ in sorted_x:
-            if gems_to_pick.get(gem, 0) == 1:
+            if len(gems_to_pick) == 3:
+                break
+            if gems_to_pick.get(gem, 0) == 1 or gem == Gem.GOLD:
                 continue
             if gems_on_board[gem] > 0:
                 gems_to_pick[gem] = 1
-            if len(gems_to_pick) == 3:
-                break
         
         if len(gems_to_pick) < 3:
             for gem in Gem:
-                if gems_on_board[gem] and gems_to_pick.get(gem, 0) == 0:
-                    gems_to_pick[gem] = 1
                 if len(gems_to_pick) == 3:
                     break
+                if gem == Gem.GOLD:
+                    continue
+                if gems_on_board[gem] and gems_to_pick.get(gem, 0) == 0:
+                    gems_to_pick[gem] = 1
+                
 
         return gems_to_pick
 
@@ -107,7 +111,7 @@ class SmartStrategy(Strategy):
 
         # if you cannot afford anything, get gems if possible:
         gems_to_pick = self.recommend_gems_to_pick(cards, gems_on_board, current_gems)
-        if greater_than_or_equal_to(gems_on_board, gems_to_pick):
+        if greater_than_or_equal_to(gems_on_board, gems_to_pick) and len(gems_to_pick) > 0:
             return ActionParams(self.player.id, Action.PICK_THREE, gems_to_pick, None)
         else:
             #import pdb; pdb.set_trace()
