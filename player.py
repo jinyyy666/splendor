@@ -153,7 +153,14 @@ class Player(object):
                 summary[c.gem] = 0
             summary[c.gem] += 1
         return summary
-        
+
+
+    def card_summary_plus_current_gems(self):
+        summary = self.card_summary()
+        for g, c in self.gems_from_hand.items():
+            summary[g] += c
+        return summary
+
 
     # ---------------------------------------------------------
     # Here are all the standard operations the player can take
