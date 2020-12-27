@@ -43,10 +43,11 @@ class NaiveStrategyTest(unittest.TestCase):
 
     def test_recommend_gems_to_pick(self):
         stgy = self._setup_naive_strategy()
+        my_board = Board(2)
 
         all_cards = self._gen_dummy_cards()
 
-        gems_to_pick = stgy.recommend_gems_to_pick(all_cards)
+        gems_to_pick = stgy.recommend_gems_to_pick(all_cards, my_board.get_gems())
 
         self.assertEqual(gems_to_pick[Gem.GREEN], 1)
         self.assertEqual(gems_to_pick[Gem.RED], 1)

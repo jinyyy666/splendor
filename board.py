@@ -2,6 +2,8 @@
 
 from enum import Enum
 from player import Player
+from strategies.naive_strategy import NaiveStrategy
+
 from model import (
     Gem,
     Card,
@@ -90,6 +92,9 @@ class Board(object):
         for i in range(0, self.players_cnt):
             self.players.append(Player(i))
         
+        for player in self.players:
+            player.set_strategy(NaiveStrategy(self, player))
+
     def _shuffle(self):
         '''Shuffle cards and nobles'''
         for cards in self.all_cards:
@@ -192,7 +197,7 @@ class Board(object):
         return winners
 
 if __name__ == '__main__':
-    board = Board(2)
+    board = Board(2, should_shuffle=True)
     can_win = False
     while not can_win:
         # take turns
@@ -202,4 +207,4 @@ if __name__ == '__main__':
             if player.can_win(board.points_to_win):
                 can_win = True
     if can_win:
-        print('Winners: {}!'.format(board._get_winners()))
+        print('Winners: {}!'.format([(p.id, p.rep, len(p.cards), len(p.nobles)) for p in board._get_winners()]))

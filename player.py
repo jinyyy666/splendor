@@ -138,6 +138,9 @@ class Player(object):
     def set_gems(self, gems):
         self.gems_from_hand = gems
 
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+
     def _add_gems(self, gems):
         for gem_t, cnt in gems.items():
             self.gems_from_hand[gem_t] += cnt
@@ -328,11 +331,11 @@ class Player(object):
         #   - # gems you want to pick
         #   - Or: the card you want to buy or reserve
 
-        # action_params = self.strategy.next_step(board, self, other_players)
-        # action, gems, card_id = action_params.action, action_params.gems, action_param.card_id 
-        # card = board.get_card(card_id)
-        #self._func_map[action](gems, card, board)
-        pass
+        action_params = self.strategy.next_step()
+        action, gems, card_id = action_params.action, action_params.gems, action_params.card_id 
+        card = board.get_card(card_id)
+        self._func_map[action](gems, card, board)
+        #pass
 
 
     # this is use to take an action from outside (for test)
