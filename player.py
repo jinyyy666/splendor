@@ -101,8 +101,8 @@ class Player(object):
         self.rep += noble.reputation
 
 
-    def can_win(self):
-        return self.rep >= REPUTATION_TO_WIN
+    def can_win(self, points_to_win):
+        return self.rep >= points_to_win
 
 
     def can_afford(self, card):

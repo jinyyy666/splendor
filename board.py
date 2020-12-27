@@ -14,8 +14,9 @@ import json
 
 
 class Board(object):
-    def __init__(self, players_cnt, should_shuffle=False):
+    def __init__(self, players_cnt, should_shuffle=False, points_to_win=15):
         self.players_cnt = players_cnt
+        self.points_to_win = points_to_win
         self.all_cards = []
         self.all_nobles = []
         self.cards_index = [0, 0, 0]
@@ -180,7 +181,7 @@ if __name__ == '__main__':
         for player in board.players:
             player.take_action(board)
             board._check_and_update_nobles(player)
-            if player.can_win():
+            if player.can_win(board.points_to_win):
                 can_win = True
     if can_win:
         board.players.sort(key=lambda p: (-p.reputation, p.development_cards))
