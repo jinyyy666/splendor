@@ -157,8 +157,10 @@ class Player(object):
 
     def card_summary_plus_current_gems(self):
         summary = self.card_summary()
+        
         for g, c in self.gems_from_hand.items():
-            summary[g] += c
+            if g in summary:
+                summary[g] += c
         return summary
 
 

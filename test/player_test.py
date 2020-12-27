@@ -175,7 +175,7 @@ class PlayerTest(unittest.TestCase):
         player1.reserve_card(None, cards[1][1], my_board)
 
         self.assertEqual(my_board.get_gems()[Gem.GOLD], gold_original - 3)
-        
+
         with self.assertRaises(ValueError):
             player1.reserve_card(None, cards[2][0], my_board)
 
@@ -258,7 +258,7 @@ class PlayerTest(unittest.TestCase):
         card_summary = player1.card_summary()
         # use the gems to adjust the cost
         for g, c in cost.items():
-            c = min(0, c - card_summary.get(g, 0))
+            c = max(0, c - card_summary.get(g, 0))
         
         player1.pick_different_gems(cost, None, my_board)
         player1.buy_board_card(None, card, my_board)
