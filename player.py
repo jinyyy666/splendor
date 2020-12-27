@@ -147,7 +147,7 @@ class Player(object):
 
 
     def card_summary(self):
-        summary = {}
+        summary = {gem : 0 for gem in Gem}
         for c in self.cards:
             if c.gem not in summary:
                 summary[c.gem] = 0
@@ -350,4 +350,3 @@ class Player(object):
         action, gems, card_id = action_params.action, action_params.gems, action_params.card_id 
         card = board.get_card(card_id)
         self._func_map[action](gems, card, board)
-    
